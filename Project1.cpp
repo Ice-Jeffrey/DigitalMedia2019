@@ -38,7 +38,7 @@ static void HSVadjust(int, void*) {
 		for (int j = 0; j < src.cols; j++) {
 			//saturation_slider = image_hsv.at<Vec3b>(i, j)[1];
 			image_hsv.at<Vec3b>(i, j)[1] = saturate_cast<uchar>(
-				alpha * src.at<Vec3b>(i, j)[1] + saturation
+				image_hsv.at<Vec3b>(i, j)[1] + saturation
 				);
 		}
 	}

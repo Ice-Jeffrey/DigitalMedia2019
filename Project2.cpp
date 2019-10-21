@@ -2,37 +2,51 @@
 #include<opencv2/opencv.hpp>
 
 using namespace std;
+using namespace cv;
 
 void fun(cv::Mat src, cv::Mat dst, int function) {
+	cout << "请输入滤波核的长度：";
+	int size;
+	cin >> size;
 	if (function == 1) {
-		//ʵ�ּ�ģ��
-		blur(src, dst, cv::Size(9, 9));
-		cv::imshow("Ч��", dst);
+		//简单模糊
+		blur(src, dst, cv::Size(size, size));
+		namedWindow("简单模糊");
+		cv::imshow("简单模糊", dst);
 		cv::waitKey(0);
+		destroyWindow("简单模糊");
 	}
 	else if (function == 2) {
-		//ʵ�־�ֵ�˲�
-		boxFilter(src, dst, 8, cv::Size(9, 9));
-		cv::imshow("Ч��", dst);
+		//均值滤波
+		boxFilter(src, dst, 8, cv::Size(size, size));
+		namedWindow("均值滤波");
+		cv::imshow("均值滤波", dst);
 		cv::waitKey(0);
+		destroyWindow("均值滤波");
 	}
 	else if (function == 3) {
-		//ʵ����ֵ�˲�
-		medianBlur(src, dst, 9); //Kernalcv::Size(3, 3));
-		cv::imshow("Ч��", dst);
+		//中值滤波
+		medianBlur(src, dst, size); 
+		namedWindow("中值滤波");
+		cv::imshow("中值滤波", dst);
 		cv::waitKey(0);
+		destroyWindow("中值滤波");
 	}
 	else if (function == 4) {
-		//ʵ�ָ�˹�˲�
-		GaussianBlur(src, dst, cv::Size(9, 9), 0.0);
-		cv::imshow("Ч��", dst);
+		//高斯滤波
+		GaussianBlur(src, dst, cv::Size(size, size), 0.0);
+		namedWindow("高斯滤波");
+		cv::imshow("高斯滤波", dst);
 		cv::waitKey(0);
+		destroyWindow("高斯滤波");
 	}
 	else if (function == 5) {
-		//ʵ��˫���˲�
-		bilateralFilter(src, dst, -1, 0.0, 150);
-		cv::imshow("Ч��", dst);
+		//双边滤波
+		bilateralFilter(src, dst, 32, 183, 188);
+		namedWindow("双边滤波");
+		cv::imshow("双边滤波", dst);
 		cv::waitKey(0);
+		destroyWindow("双边滤波");
 	}
 }
 
@@ -42,24 +56,20 @@ int main() {
 	if (src.empty()) {
 		cout << "Fail to load the image" << endl;
 	}
-	//cv::waitKey(0);
+	
+	cout << "请输入要实现的功能：" << endl
+		<< "1. 简单模糊" << endl
+		<< "2. 均值滤波" << endl
+		<< "3. 中值滤波" << endl
+		<< "4. 高斯滤波" << endl
+		<< "5. 双边滤波" << endl
+		<< "6. 退出程序" << endl << endl;
 
-	//int function;
-	/*cout << "��������Ҫʵ�ֵ��˲�Ч����" << endl
-		<< "1: ��ģ��" << endl
-		<< "2: ��ֵ�˲�" << endl
-		<< "3: ��ֵ�˲�" << endl
-		<< "4: ��˹�˲�" << endl
-		<< "5: ˫���˲�" << endl
-		<< "6: �˳�" << endl;*/
-
-	//cv::namedWindow("Ч��", WINDOW_AUTOcv::Size);
-	/*cv::namedWindow("source", cv::WINDOW_AUTOSIZE);
-	cv::imshow("source", src);
-	cv::waitKey(0);*/
-	bilateralFilter(src, dst, -1, 0.0, 50);
-	cv::imshow("Ч��", dst);
-	cv::waitKey(0);
+	int function;
+	while (cin >> function) {
+		if (function == 6)	break;
+		fun(src, dst, function);
+	}	
 
 	return 0;
 }
