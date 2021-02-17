@@ -1,9 +1,9 @@
-#include<iostream>
-#include<opencv2/opencv.hpp>
-#include <opencv2/ximgproc/edge_filter.hpp>	//µ¼ÏòÍ¼ÂË²¨µÄ¹Ù·½Ëã·¨
-#include<vector>
-#include<algorithm>
-#include<cmath>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <opencv2/ximgproc/edge_filter.hpp>
+#include <vector>
+#include <algorithm>
+#include <cmath>
 using namespace cv;
 using namespace std;
 
@@ -14,15 +14,6 @@ typedef struct Node {
 
 bool cmp(const Class &c1, const Class &c2) {
 	return (c1.e > c2.e);
-}
-
-template<typename T>
-T range(T begin, T end, T value) {
-	if (value < begin)
-		value = begin;
-	if (value > end)
-		value = end;
-	return value;
 }
 
 Mat DarkChannel_uchar(Mat src) {
@@ -59,7 +50,7 @@ void MinFilter_uchar(Mat src, Mat& dst, int kernal_width, int kernal_height) {
 			vector<unsigned char> vec;
 			for (int r = i - kernal_width / 2; r <= i + kernal_width / 2; r++) {
 				for (int c = j - kernal_height / 2; c <= j + kernal_height / 2; c++) {
-						vec.push_back(src.at<uchar>(r, c));
+					vec.push_back(src.at<uchar>(r, c));
 				}
 			}
 			sort(vec.begin(), vec.end());
@@ -88,11 +79,12 @@ void MinFilter_double(Mat src, Mat& dst, int kernal_width, int kernal_height) {
 	}
 }
 
+// è®¡ç®—å›¾ç‰‡ä¸­å¯¹åº”çš„Açš„å€¼
 vector<double> AComputing(Mat src, Mat dark) {
 	int count = round(src.cols * src.rows * 1.0 / 1000);
 	vector<double> A;
 
-	//±éÀú°µÍ¨µÀ
+	// å¯¹æš—é€šé“å›¾åƒçš„äº®åº¦è¿›è¡Œæ’åº
 	vector<Class> v;
 	for (int i = 0; i < dark.rows; i++) 
 		for (int j = 0; j < dark.cols; j++) {
@@ -102,9 +94,8 @@ vector<double> AComputing(Mat src, Mat dark) {
 			node.e = dark.at<uchar>(i, j);
 			v.push_back(node);
 		}
-			
-	//Ñ¡³ö°µÍ¨µÀÇ°0.1%ÁÁ¶ÈµÄÏñËØ¶ÔÓ¦Î»ÖÃµÄÔ­Í¼ÏñËØ
 	sort(v.begin(), v.end(), cmp);
+
 	vector<uchar> temp1, temp2, temp3;
 	for (int i = 0; i < count; i++) {
 		int x = v[i].i;
@@ -113,22 +104,14 @@ vector<double> AComputing(Mat src, Mat dark) {
 		temp2.push_back(src.at<Vec3b>(x, y)[1]);
 		temp3.push_back(src.at<Vec3b>(x, y)[2]);
 	}
-	//¶ÔÈı¸öÍ¨µÀ·Ö±ğ½øĞĞÅÅĞò
-	double sum = 0;
-	for (int i = 0; i < count; i++)
-		sum += temp1[i];
-	A.push_back(sum * 1.0 / count);
-	sum = 0;
-	for (int i = 0; i < count; i++)
-		sum += temp2[i];
-	A.push_back(sum * 1.0 / count);
-	sum = 0;
-	for (int i = 0; i < count; i++)
-		sum += temp3[i];
-	A.push_back(sum * 1.0 / count);
 
-	for (int i = 0; i < 3; i++)
-		A[i] = range(double(0), 255 * 0.8, A[i]);
+	// å¯»æ‰¾å„ä¸ªé€šé“çš„Aå€¼
+	sort(temp1.begin(), temp1.end());
+	sort(temp2.begin(), temp2.end());
+	sort(temp3.begin(), temp3.end());
+	A.push_back(temp1[count-1]);
+	A.push_back(temp2[count-1]);
+	A.push_back(temp3[count-1]);
 
 	return A;
 }
@@ -136,27 +119,28 @@ vector<double> AComputing(Mat src, Mat dark) {
 
 
 int main() {
-	//¶ÁÈëÍ¼Æ¬
+	// è¯»å–éœ€è¦è¿›è¡Œå»é›¾çš„å›¾ç‰‡
 	Mat src;
-	src = imread("C:/Users/Jeffrey/Pictures/Haze.jpeg");
+	src = imread("./img/Haze.png");
 	if (src.empty()) {
 		cout << "Failed to load the image!" << endl;
 		return -1;
 	}
 
-	//¼ÆËã°µÍ¨µÀ
+	// æ±‚å¾—æš—é€šé“å›¾ç‰‡
 	Mat dark1 = DarkChannel_uchar(src);
-	//½øĞĞ×îĞ¡ÖµÂË²¨
+	// å¯¹æš—é€šé“è¿›è¡Œæœ€å°å€¼æ»¤æ³¢
 	Mat dark2;
 	MinFilter_uchar(dark1, dark2, 11, 11);
-	imshow("test", dark2);
-	waitKey(0);
-	destroyWindow("test");
 
-	//¼ÆËãAÖµ
+	// æµ‹è¯•è¾“å‡ºæ»¤æ³¢ä¹‹åçš„æš—é€šé“
+	// imshow("darkchannel", dark2);
+	// waitKey(0);
+	// destroyWindow("darkchannel");
+
+	// æ±‚å‡ºå¯¹åº”çš„Aå€¼
 	vector<double> A = AComputing(src, dark2);
 
-	//¶ÔÔ­Í¼Ïñ¹éÒ»»¯
 	Mat temp = Mat::zeros(src.rows, src.cols, CV_64FC3);
 	for (int i = 0; i < temp.rows; i++) {
 		for (int j = 0; j < temp.cols; j++) {
@@ -165,12 +149,11 @@ int main() {
 			}
 		}
 	}
-	//È¡°µÍ¨µÀ
 	Mat dark3 = DarkChannel_double(temp);
-	//×îĞ¡ÖµÂË²¨
 	Mat dark4;
 	MinFilter_double(dark3, dark4, 11, 11);
-	//¼ÆËãt
+	
+	// æ±‚å¯¹åº”çš„tå€¼
 	double omega = 0.9;
 	Mat t = Mat::zeros(dark4.rows, dark4.cols, CV_64FC1);
 	for (int i = 0; i < t.rows; i++)
@@ -178,13 +161,13 @@ int main() {
 			t.at<double>(i, j) = double(1 - omega * dark4.at<double>(i, j));
 		}
 		 	
-	//Çó³öÔ­Í¼Ïñ
+	// è¿›è¡Œå»é›¾è®¡ç®—
 	Mat Haze_free = Mat::zeros(src.rows, src.cols, src.type());
 	for (int i = 0; i < src.rows; i++) {
 		for (int j = 0; j < src.cols; j++) {
 			for (int k = 0; k < 3; k++) {
-				double temp1 = double(src.at<Vec3b>(i, j)[k] - A[k]);
-				double value = A[k] + temp1 * 1.0 / max(double(t.at<double>(i, j)), 0.1);
+				double temp1 = double(src.at<Vec3b>(i, j)[k]) - A[k];
+				double value = A[k] + temp1 * 1.0 / double(t.at<double>(i, j));
 				if (value > 255)
 					value = 255;
 				if (value < 0)
@@ -194,11 +177,11 @@ int main() {
 		}
 	}
 
-	//×îºó¶ÔÔ­Í¼Ïñ½øĞĞµ¼ÏòÍ¼ÂË²¨
+	// è¿›è¡Œå¯¼å‘å›¾æ»¤æ³¢
 	Mat deFog;
 	ximgproc::guidedFilter(src, Haze_free, deFog, 20, 0.001);
 
-	//ÏÔÊ¾Ô­Í¼
+	// å¯¹æ¯”å»é›¾å‰åæ•ˆæœ
 	imshow("source", src);
 	waitKey(0);
 	imshow("Haze_Free", deFog);
