@@ -1,8 +1,6 @@
 import numpy as np
-#import tensorflow as tf
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
-from tensorflow.examples.tutorials.mnist import input_data
+import tensorflow as tf
+from tensorflow.examples.tutorials import mnist, input_data
 
 mnist_data=input_data.read_data_sets("MNIST_data",one_hot=True)
 batch_size=100
